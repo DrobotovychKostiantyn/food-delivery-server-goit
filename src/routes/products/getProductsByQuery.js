@@ -1,6 +1,10 @@
 const url = require("url");
-const usersList = require("../../db/products/all-products.json");
+const fs = require("fs");
+const path = require("path");
 const qs = require("querystring");
+
+const productsFolder = path.join(__dirname, "../../", "db", "/products");
+const allProducts = fs.readFileSync(productsFolder + "/all-products.json");
 
 const badAnswer = (products, res) => {
   res.writeHead(200, { "Content-Type": "application/json" });
@@ -17,7 +21,7 @@ const goodAnswer = (products, res) => {
 const getProductsByIds = (req, res) => {
   const parsedQuery = qs.parse(url.parse(req.url).query);
 
-  // http://localhost:3001/products/?category="pizza"
+  // https://localhost:3001/products/?category="pizza"
 
   if (parsedQuery.category) {
     const categoryFromParsedQuery = parsedQuery.category.slice(
@@ -25,8 +29,8 @@ const getProductsByIds = (req, res) => {
       parsedQuery.category.length - 1
     );
 
-    const products = usersList.filter(
-      user => user.categories[0] === categoryFromParsedQuery
+    const products = JSON.parse(allProducts).filter(
+      product => product.categories[0] === categoryFromParsedQuery
     );
 
     if (products.length > 0) {
@@ -38,14 +42,16 @@ const getProductsByIds = (req, res) => {
     return;
   }
 
-  //  http://localhost:3001/products/?ids='19112836,19112835,19112835'
+  //  https://localhost:3001/products/?ids="19112831,19112832"
   if (parsedQuery.ids) {
     const idsFromParsedQuery = parsedQuery.ids
       .slice(1, parsedQuery.ids.length - 1)
       .split(",");
 
     const products = idsFromParsedQuery.reduce((acc, id) => {
-      usersList.map(user => (user.id === Number(id) ? acc.push(user) : user));
+      JSON.parse(allProducts).map(product =>
+        product.id === Number(id) ? acc.push(product) : product
+      );
       return acc;
     }, []);
 

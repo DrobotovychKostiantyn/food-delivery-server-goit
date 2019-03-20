@@ -1,23 +1,25 @@
-const http = require("http");
-const url = require("url");
-
+const bodyParser = require("body-parser");
+const app = require("./modules/app");
 const morgan = require("morgan");
 const router = require("./routes/router");
 
-const logger = morgan("combined");
+const errorHandler = (err, req, res) => {
+  console.error(err.stack);
+
+  res.json(500).send("Something broke!");
+};
 
 const startServer = port => {
-  const server = http.createServer((request, response) => {
-    // Get route from the request
-    const parsedUrl = url.parse(request.url);
+  app
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(bodyParser.json())
+    .use(morgan("dev"))
+    .use("/", router)
+    .use(errorHandler);
 
-    // Get router function
-    const func = router[parsedUrl.pathname] || router.default;
+  app.listen(port);
 
-    logger(request, response, () => func(request, response));
-  });
-
-  server.listen(port);
+  console.log("Server was started at http://localhost:" + port);
 };
 
 module.exports = startServer;

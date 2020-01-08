@@ -1,23 +1,32 @@
-const http = require("http");
-const url = require("url");
-
+const express = require("express");
+const path = require("path");
+const https = require("https");
+const bodyParser = require("body-parser");
+const app = require("./modules/app");
 const morgan = require("morgan");
 const router = require("./routes/router");
+const options = require("./ssl/options");
 
-const logger = morgan("combined");
+const errorHandler = (req, res, next) => {
+  res.status(500).send("No such page");
+  next();
+};
+
+const staticPath = path.join(__dirname, "..", "assets");
 
 const startServer = port => {
-  const server = http.createServer((request, response) => {
-    // Get route from the request
-    const parsedUrl = url.parse(request.url);
+  app
+    .use(bodyParser.urlencoded({ extended: false }))
+    .use(bodyParser.json())
+    .use(morgan("dev"))
+    // .use(checkAuth)
+    .use(express.static(staticPath))
+    .use("/", router)
+    .use(errorHandler);
 
-    // Get router function
-    const func = router[parsedUrl.pathname] || router.default;
+  https.createServer(options, app).listen(port);
 
-    logger(request, response, () => func(request, response));
-  });
-
-  server.listen(port);
+  console.log("Server was started at http://localhost:" + port);
 };
 
 module.exports = startServer;

@@ -1,13 +1,25 @@
+const express = require("express");
 const mainRoute = require("./main/main");
-const signUpUserRoute = require("./users/signUpRoute");
-const productsListRoute = require("./products/products");
+const getImageRoute = require("./image/get-image");
+const getUser = require("./user/get-user");
+const getSaveImageHandlers = require("./image/save-image-multipart");
+const getProductById = require("./products/getProductById");
+const getProducts = require("./products/getProducts");
 
-const router = {
-  "/products": productsListRoute,
-  "/": mainRoute,
-  "/signup": signUpUserRoute,
+const createOrders = require("./orders/create-orders");
+const createUser = require("./user/create-user");
 
-  default: mainRoute
-};
+const apiRoutes = express.Router();
 
-module.exports = router;
+apiRoutes
+  .get("/", mainRoute)
+  .get("/image", getImageRoute)
+  .get("/users/:userId", getUser)
+  .get("/products", getProducts)
+  .get("/products/:id", getProductById)
+
+  .post("/users", createUser)
+  .post("/orders", createOrders)
+  .post("/image", getSaveImageHandlers());
+
+module.exports = apiRoutes;

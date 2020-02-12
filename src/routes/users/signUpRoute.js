@@ -28,7 +28,6 @@ const signUpRoute = (request, response) => {
 
     request.on("end", function() {
       const post = JSON.parse(body);
-      //   console.log(post);
       saveUser(post);
 
       response.writeHead(201, { "Content-Type": "application/json" });

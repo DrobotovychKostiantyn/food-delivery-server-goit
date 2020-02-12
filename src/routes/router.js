@@ -1,6 +1,6 @@
 const mainRoute = require("./main/main");
 const signUpUserRoute = require("./users/signUpRoute");
-const productsListRoute = require("./products/products");
+const productsListRoute = require("./products");
 
 const router = {
   "/products": productsListRoute,
